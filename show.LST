@@ -1,0 +1,86 @@
+C51 COMPILER V8.02   SHOW                                                                  04/29/2007 12:10:58 PAGE 1   
+
+
+C51 COMPILER V8.02, COMPILATION OF MODULE SHOW
+OBJECT MODULE PLACED IN show.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE show.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          //MM74HC595 +数码管显示的程序模块，标号按MM74HC595.PDF文件标注
+   2          //提供show(showdata)显示接口  showdata:0~99
+   3          
+   4          
+   5          
+   6          #include<reg51.h>  
+   7          #define uchar unsigned char
+   8          
+   9          uchar code seg[10]={0xC0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90};
+  10          
+  11          sbit SER=P0^4;    //595串行数据输入
+  12          sbit SCK=P0^5;    //595移位时钟
+  13          sbit RCK=P0^7;    //595数据输出脉冲
+  14          sbit SQH=P0^6;    //595串行数据输出
+  15          sbit gewei=P2^7;  //595数码管个位选通
+  16          sbit shiwei=P2^6; //595数码管十位选通 
+  17          
+  18          
+  19          sbit power=P1^7;  
+  20          
+  21          void IN595(uchar segdata)       //输入一字节数码管数据进595
+  22          {
+  23   1        uchar i,temp;
+  24   1        //temp=seg[segdata];
+  25   1        temp=segdata;             //！！
+  26   1        RCK=0;  
+  27   1        for(i=0;i<8;i++)      //循环移入8位数据，
+  28   1        {
+  29   2           SCK=0;
+  30   2               SER=temp&0x80; // 取数码的最高位
+  31   2               temp=temp<<1;
+  32   2               SCK=1; //上升沿把一位数据移入595
+  33   2        }
+  34   1        //由于电路上设计的不合理，这时在最低位QA的对应的是数码管右下角的点的管脚，所以需要再移一位，
+  35   1        //使段码脚与数码对应起来，并把QA处的值置1，使数码管不显示点
+  36   1        SCK=0;
+  37   1        SER=segdata&0x80;                     //
+  38   1        SCK=1; 
+  39   1      
+  40   1      
+  41   1        RCK=1;  //上升沿把8位数据并行输出 
+  42   1      }
+  43          
+  44          
+  45          void show(uchar showdata)        //注意数码管应在不断循环中显示
+  46          {
+  47   1         IN595(showdata);    //移入十位数据
+  48   1         gewei=1;     //关个位
+  49   1         shiwei=0;    //选通十位数码管
+  50   1       
+  51   1      
+  52   1      }
+  53          
+  54          
+  55          
+C51 COMPILER V8.02   SHOW                                                                  04/29/2007 12:10:58 PAGE 2   
+
+  56          
+  57          
+  58          
+  59          
+  60          
+  61          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     41    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
